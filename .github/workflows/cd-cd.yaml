@@ -1,0 +1,42 @@
+name: build push and deploy
+on:
+   workflow_dispatch: # Allows manual triggering of the workflow
+  #push:
+    branches: 
+      - main
+   pull_request:
+    branches:
+      - main
+env:
+  AWS_REGION: us-east-1
+  AWS_ROLE: ${{ secrets.AWS_CREDENTIAL_ROLE }}
+ 
+jobs:
+    build:
+      runs-on: ubuntu-latest # Use the latest Ubuntu runner ghithub runners provide
+      steps:
+        - name: Checkout code or clone repository
+          uses: actions/checkout@v3
+
+        - name: Aws credential setup
+          uses: aws-actions/configure-aws-credentials@v4
+            with:
+               role-to-assume: ${{ env.AWS_ROLE }}   #OIDC of the role to assume
+               aws-region: ${{ env.AWS_REGION }}
+         
+        - name: Loging to ecr
+          uses: aws-actions/amazon-ecr-login@v1
+          
+
+        - name: Build the project
+          run: npm run build
+
+        - name: Deploy to AWS S3
+          uses: jakejarvis/s3-sync-action@master
+          with:
+            args: --acl public-read --follow-symlinks --delete
+          env:
+            AWS_S3_BUCKET: ${{ secrets.AWS_S3_BUCKET }}
+            AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+            AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+            SOURCE_DIR: './build'
