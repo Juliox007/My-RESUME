@@ -33,7 +33,7 @@ jobs:
           id: ecr-login
           
 
-        - name: Build, tag, and push Docker image
+        - name: Build, tag, and push docker image
           id: build-and-push
           run: |
                 docker build -t ${{ steps.ecr-login.outputs.registry }}/${{ env.ECR_REPO_NAME }}:${{env.IMAGE_TAG}} .
