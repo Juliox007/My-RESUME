@@ -27,7 +27,7 @@ jobs:
     outputs:  # Define outputs for the Deploy job
       image-uri: ${{ steps.set-image.outputs.image-uri }}
     steps:
-      - name: Clone repo
+      - name: Clone repos
         uses: actions/checkout@v3
       
       - name: AWS Creds Config 
